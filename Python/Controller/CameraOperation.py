@@ -1,14 +1,19 @@
-from multiprocessing import Process
+"""
+This file will open the camera from web http request.
+It has two operation: create new camera or close camera.
+Use https://127.0.0.1:5000/camera/new to create new camera.
+Use https://127.0.0.1:5000/camera/close to close camera.
+"""
 
+# library
+from multiprocessing import Process
 from flask import Blueprint
 import numpy
-
-from OpenCV.Camera import startCameraProcess
+# module
+from OpenCV.Camera import run_camera
 
 bp = Blueprint("Camera", __name__)
-
 camera_process: Process | None = None
-
 def is_camera_process_running():
     global camera_process
     return camera_process is not None and camera_process.is_alive()
@@ -23,7 +28,7 @@ def new():
             "msg": "Camera has been running."
         }, 429
     
-    camera_process = Process(target=startCameraProcess, args=[numpy.array([600,480])])
+    camera_process = Process(target=run_camera)
     camera_process.start()
     print("Log: Camera will be created.")
     return {

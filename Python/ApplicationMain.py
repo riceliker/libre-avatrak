@@ -13,12 +13,9 @@ def add_security_headers(resp):
     return resp
 
 # Config
-from Config import getPort
+from Config import get_port
 
 # Controller
-from Controller.test import bp as test_bp
-app.register_blueprint(test_bp)
-
 from Controller.CameraOperation import bp as camera_bp
 app.register_blueprint(camera_bp, url_prefix="/camera")
 
@@ -33,11 +30,11 @@ app.register_blueprint(scene_bp, url_prefix="/scene")
 
 # MultiProcess
 
-def addProcess(func,arg_list):
+def add_process(func, arg_list):
     p = Process(target=func, args=arg_list)
     p.start()
 
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=getPort(), debug=False)
+    app.run(host="127.0.0.1", port=get_port(), debug=False)
     
     

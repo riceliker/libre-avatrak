@@ -4,7 +4,7 @@ import os
 bp = Blueprint("Scene", __name__)
 
 GODOT_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../../Web/Godot")
+    os.path.join(os.path.dirname(__file__), "../../GodotWeb")
 )
 
 @bp.route("/")
