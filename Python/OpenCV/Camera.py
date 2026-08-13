@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import mediapipe as mp
+from multiprocessing import Queue
 
 BaseOptions = mp.tasks.BaseOptions
 FaceLandmarker = mp.tasks.vision.FaceLandmarker
@@ -50,7 +51,7 @@ def rvec_to_euler(rvec):
         roll = np.arctan2(R[1,0], R[0,0])
     return np.rad2deg([pitch, yaw, roll])
 
-def run_camera():
+def run_camera(face_queue: Queue):
     options = FaceLandmarkerOptions(
         base_options=BaseOptions(model_asset_path="./face_landmarker.task"),
         running_mode=VisionRunningMode.VIDEO,
@@ -86,12 +87,13 @@ def run_camera():
             # EAR
             ear_l = ear(all_points[LEFT_EYE])
             ear_r = ear(all_points[RIGHT_EYE])
-            ear_avg = (ear_l + ear_r)/2
-            eye_status = "close" if ear_avg < 0.24 else "open"
+        
+            eye_l = round(float(ear_l), 3)
+            eye_r = round(float(ear_r), 3)
 
             # MAR
             mar_val = mar(all_points[MOUTH])
-            mouth_status = "open" if mar_val > 1.33 else "closed"
+            mouse = round(float(mar_val), 3)
 
             # solvePnP
             img_pts = all_points[PnP_IDS]
@@ -100,28 +102,37 @@ def run_camera():
                 [0, w, h/2],
                 [0, 0, 1]
             ], dtype=np.float32)
-            dist_coeffs = np.zeros((4,1))
-            _, rvec, tvec = cv2.solvePnP(
-                obj_pts, img_pts, cam_matrix, dist_coeffs,
-                flags=cv2.SOLVEPNP_SQPNP
+            _, rvec, _ = cv2.solvePnP(
+                obj_pts, img_pts, cam_matrix, 
+                np.zeros((4,1)),flags=cv2.SOLVEPNP_SQPNP
             )
             pitch, yaw, roll = rvec_to_euler(rvec)
+            pitch = round(float(pitch), 1)
+            yaw = round(float(yaw), 1)
+            roll = round(float(roll), 1)
 
             # draw info text
             texts = [
-                f"EAR:{ear_avg:.3f}",
-                f"MAR:{mar_val:.3f}",
-                f"Pitch:{pitch:.1f} Yaw:{yaw:.1f} Roll:{roll:.1f}"
+                f"Eye: L{eye_l} R:{eye_r} Mouse:{mouse}",
+                f"Pitch:{pitch} Yaw:{yaw} Roll:{roll}"
             ]
             for idx,txt in enumerate(texts):
-                cv2.putText(frame, txt, (10, 30 + idx*30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,255,0), 2)
+                cv2.putText(
+                    frame, txt, (10, 30 + idx*30), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0,255,0), 2
+                )
 
             # draw points
             for (x,y) in all_points:
                 cv2.circle(frame, (int(x), int(y)), 1, (0,255,0), -1)
 
-        cv2.imshow("FaceLandmarker", frame)
+            # send data
+            try:
+                face_queue.put((eye_l, eye_r, mouse, pitch, yaw, roll), block=False)
+            except:
+                pass
+
+        cv2.imshow("LibreAvatrak", frame)
         key = cv2.waitKey(1) & 0xFF
         if key == ord("q"):
             break
