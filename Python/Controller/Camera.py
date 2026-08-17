@@ -49,3 +49,20 @@ def query():
             "Connection": "keep-alive"
         }
     )
+
+@bp.route("/query_get")
+def query_get():
+    try:
+        face_data = face_queue.get(block=False)
+        return {
+                "code": 200,
+                "msg": "Get face data successful",
+                "face_data": face_data
+            }
+    except queue.Empty:
+        return {
+                "code": 400,
+                "msg": "Please wait the data catch",
+                "face_data": []
+            }
+    

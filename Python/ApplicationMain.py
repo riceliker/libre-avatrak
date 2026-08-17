@@ -38,6 +38,9 @@ app.register_blueprint(console_bp, url_prefix="/")
 
 camera_process: Process | None = None
 
+
+
+
 def run_event():
     while True:
         # Camera control
@@ -51,6 +54,8 @@ def run_event():
                 camera_process.join()
         except queue.Empty:
             pass
+
+
         
         
 

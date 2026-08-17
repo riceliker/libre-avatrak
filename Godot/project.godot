@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="GodotVRMVtuberStudio"
-run/main_scene="uid://cs6y1kucuq37d"
+config/name="LibraAvatrak"
+run/main_scene="uid://cy5hno0ti46bm"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -30,6 +30,7 @@ enabled=PackedStringArray("res://addons/Godot-MToon-Shader/plugin.cfg", "res://a
 
 [physics]
 
+common/physics_ticks_per_second=120
 3d/physics_engine="Jolt Physics"
 
 [rendering]

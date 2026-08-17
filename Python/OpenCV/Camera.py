@@ -2,11 +2,33 @@ import cv2
 import numpy as np
 import mediapipe as mp
 from multiprocessing import Queue
+import time
+import socket
+import json
+
+class FPSCounter:
+    def __init__(self, smooth=10):
+        self.smooth = smooth
+        self.times = []
+        self.last_time = time.perf_counter()
+
+    def tick(self):
+        now = time.perf_counter()
+        dt = now - self.last_time
+        self.last_time = now
+
+        self.times.append(dt)
+        if len(self.times) > self.smooth:
+            self.times.pop(0)
+        avg_dt = sum(self.times) / len(self.times)
+        return 1.0 / avg_dt if avg_dt > 0 else 0
 
 BaseOptions = mp.tasks.BaseOptions
 FaceLandmarker = mp.tasks.vision.FaceLandmarker
 FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
 VisionRunningMode = mp.tasks.vision.RunningMode
+
+fps_counter = FPSCounter(smooth=15)
 
 # face index
 RIGHT_EYE = [362, 385, 387, 263, 373, 380]
@@ -50,6 +72,9 @@ def rvec_to_euler(rvec):
         yaw = 0
         roll = np.arctan2(R[1,0], R[0,0])
     return np.rad2deg([pitch, yaw, roll])
+
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 def run_camera(face_queue: Queue):
     options = FaceLandmarkerOptions(
@@ -110,11 +135,13 @@ def run_camera(face_queue: Queue):
             pitch = round(float(pitch), 1)
             yaw = round(float(yaw), 1)
             roll = round(float(roll), 1)
+            fps = fps_counter.tick()
 
             # draw info text
             texts = [
                 f"Eye: L{eye_l} R:{eye_r} Mouse:{mouse}",
-                f"Pitch:{pitch} Yaw:{yaw} Roll:{roll}"
+                f"Pitch:{pitch} Yaw:{yaw} Roll:{roll}",
+                f"FPS: {fps:.1f}"
             ]
             for idx,txt in enumerate(texts):
                 cv2.putText(
@@ -131,6 +158,8 @@ def run_camera(face_queue: Queue):
                 face_queue.put((eye_l, eye_r, mouse, pitch, yaw, roll), block=False)
             except:
                 pass
+            payload = json.dumps({"face_data": (eye_l, eye_r, mouse, pitch, yaw, roll)})
+            sock.sendto(payload.encode("utf-8"), ("127.0.0.1", 8002))
 
         cv2.imshow("LibreAvatrak", frame)
         key = cv2.waitKey(1) & 0xFF

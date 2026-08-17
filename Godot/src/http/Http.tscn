@@ -1,8 +1,0 @@
-[gd_scene format=3 uid="uid://b0paf2upv855h"]
-
-[ext_resource type="Script" uid="uid://bssubje6aq285" path="res://src/http/Http.gd" id="1_bglu6"]
-
-[node name="Http" type="Node" unique_id=116809184]
-script = ExtResource("1_bglu6")
-
-[node name="HTTPRequest" type="HTTPRequest" parent="." unique_id=2103611617]
