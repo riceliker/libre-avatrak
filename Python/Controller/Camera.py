@@ -26,7 +26,6 @@ def sse_generator():
 @bp.route("/open")
 def new():  
     camera_command_queue.put("open")
-    print("Log: Camera will be created.")
     return {
         "code": 200,
         "msg": "Camera will be created."
@@ -35,34 +34,10 @@ def new():
 @bp.route("/close")
 def close():
     camera_command_queue.put("close")
-    print("Log: Camera has been closed.")
     return {"code": 200, "msg": "Camera has been closed."}, 200
 
-
-@bp.route("/query")
-def query():
-    return Response(
-        sse_generator(),
-        mimetype="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive"
-        }
-    )
-
-@bp.route("/query_get")
-def query_get():
-    try:
-        face_data = face_queue.get(block=False)
-        return {
-                "code": 200,
-                "msg": "Get face data successful",
-                "face_data": face_data
-            }
-    except queue.Empty:
-        return {
-                "code": 400,
-                "msg": "Please wait the data catch",
-                "face_data": []
-            }
+@bp.route("/show")
+def show():
+    camera_command_queue.put("show")
+    return {"code": 200, "msg": "Camera has been closed."}, 200
     

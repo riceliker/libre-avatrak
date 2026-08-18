@@ -163,7 +163,7 @@ def run_camera(face_queue: Queue):
 
         cv2.imshow("LibreAvatrak", frame)
         key = cv2.waitKey(1) & 0xFF
-        if key == ord("q"):
+        if key == 27:
             break
 
     cap.release()
