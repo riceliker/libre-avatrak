@@ -6,6 +6,8 @@
 ![After-end](https://img.shields.io/badge/AfterEnd-PythonOpenCV-red)
 ![Version](https://img.shields.io/badge/Version-0.1beta-yellow)
 
+![effect](EffectDisplay.png)
+
 **LibreAvatrak is Free/Libre Software**, licensed under the GNU Affero General Public License v3.
 
 A lightweight single-camera facial motion capture solution built for VTubers and virtual avatar creators.
@@ -23,15 +25,23 @@ As AGPLv3 software, any modified instance or publicly accessible network service
 
 ## How To Use
 ### 1. Ready
-Have Python environment, and install Python module from `requirements.txt`
-Have Godot Editor. install Godot 4.6
+Have Python environment, and install Python module from `requirements.txt`.  
+Have Godot Editor. install Godot 4.6. 
+[Godot](https://godotengine.org)
 
 ### 2. Run
 1. Run Python first.
-2. Run Godot second.
+Suggest you to make a Python Virtual Environment
+```zsh
+python3.13 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+``` 
+2. Run Godot second. 
+the project.godot is in `frontend`
 
 ### 3. Change Your Character
-1. Load your vrm file in Godot and open it as extend scene
+1. Load your `.vrm` file in Godot and open it as extend scene
 2. Copy the all files from the VRM scene to new scene.(The Godot can not visit in read only file)
 3. Save new scene as `.scn`(Don't use `.tscn`). And rename as Char.
 4. Open the CharShow.scn, delete the old node Char and put your Char.
@@ -46,3 +56,5 @@ Any individual or creator may run this software free of charge, and earn revenue
 No one may modify the source code, close the source, package and sell this software, or build paid cloud motion capture services based on this project.
 If you modify this project and provide its functionality to others over a network, you must fully publish all modified source code.
 Architecture note: The facial tracking core runs inside the Flask backend on purpose. This design cooperates with AGPLv3 to prevent proprietary commercial services from being built while evading open-source obligations.
+
+enjoy.
